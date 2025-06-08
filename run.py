@@ -1,0 +1,8 @@
+import breast_cancer_classification
+import breast_cancer_classification.dataset
+import breast_cancer_classification.modeling.train
+import breast_cancer_classification.modeling.predict
+
+breast_cancer_classification.dataset.main()
+breast_cancer_classification.modeling.train.main()
+breast_cancer_classification.modeling.predict.main()
