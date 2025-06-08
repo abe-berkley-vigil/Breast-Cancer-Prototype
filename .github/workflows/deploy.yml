@@ -1,0 +1,77 @@
+name: Deploy to Hugging Face Spaces
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+        
+    - name: Create clean deployment directory
+      run: |
+        mkdir -p clean-deploy
+        
+        # Copy only essential files for Streamlit deployment
+        cp st.py clean-deploy/ 2>/dev/null || cp streamlit/st.py clean-deploy/st.py 2>/dev/null || echo "st.py not found"
+        cp requirements.txt clean-deploy/
+        
+        # Copy any .py files from root
+        find . -maxdepth 1 -name "*.py" -exec cp {} clean-deploy/ \;
+        
+        # Copy streamlit folder if it exists
+        if [ -d "streamlit" ]; then
+          cp -r streamlit clean-deploy/
+        fi
+        
+        # Copy essential model and data files
+        mkdir -p clean-deploy/models
+        cp models/model.pkl clean-deploy/models/ 2>/dev/null || echo "model.pkl not found"
+        
+        # Copy any CSV files your app needs
+        find . -name "*.csv" -not -path "./docs/*" -not -path "./.docs/*" -not -path "./reports/*" -exec cp {} clean-deploy/ \;
+        
+        # Create a simple README for HF
+        cat > clean-deploy/README.md << EOF
+        ---
+        title: Streamlit2
+        emoji: 🏃
+        colorFrom: red
+        colorTo: red
+        sdk: streamlit
+        app_file: st.py
+        pinned: false
+        license: mit
+        python_version: 3.11
+        ---
+        
+        # Breast Cancer Classification App
+        
+        A Streamlit application for breast cancer classification.
+        EOF
+        
+        ls -la clean-deploy/
+        
+    - name: Deploy to Hugging Face
+      env:
+        HF_USERNAME: ${{ secrets.HF_USERNAME }}
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        HF_SPACE_NAME: ${{ secrets.HF_SPACE_NAME }}
+      run: |
+        cd clean-deploy
+        git init
+        git config user.email "action@github.com"
+        git config user.name "GitHub Action"
+        
+        # Set the default branch to main
+        git branch -M main
+        
+        git add .
+        git commit -m "Deploy Streamlit app"
+        
+        # Push to main branch (force push to overwrite)
+        git push -f https://$HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HF_USERNAME/$HF_SPACE_NAME main
