@@ -1,0 +1,13 @@
+data:
+  features_path: ../data/processed/features.csv
+  labels_path: ../data/processed/labels.csv
+  processed_data_path: ../data/processed/dataset.csv
+train:
+  debug: false
+  random_state: 21
+  scale_data: true
+  test_size: 0.2
+model:
+  lr_params:
+    max_iter: 300
+  model_path: ../models/model.pkl

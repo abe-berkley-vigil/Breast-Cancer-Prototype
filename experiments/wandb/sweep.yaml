@@ -1,0 +1,13 @@
+program: experiments/wandb/wandb_logisitc.py
+method: grid # We want to explore all combinations of hyperparameters
+metric:
+  name: f1_score # Accuracy is not the best/only metric for logistic regression
+  goal: maximize
+
+parameters:
+  C:
+    values: [0.01, 0.1, 1.0, 10]
+  solver:
+    values: ["liblinear", "lbfgs"]
+  max_iter:
+    values: [100, 300, 500, 1000]

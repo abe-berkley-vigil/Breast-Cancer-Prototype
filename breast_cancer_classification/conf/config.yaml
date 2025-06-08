@@ -1,0 +1,17 @@
+data:
+  features_path: ../data/processed/features.csv
+  labels_path: ../data/processed/labels.csv
+  processed_data_path: ../data/processed/dataset.csv
+defaults:
+- _self_
+- model: logistic_regression
+hydra:
+  job:
+    chdir: false
+  run:
+    dir: .
+train:
+  debug: false
+  random_state: 21
+  scale_data: true
+  test_size: 0.2
